@@ -1,0 +1,5 @@
+C:\Users\Administrator\Desktop\课设\房产信息管理\GML\bin\Debug\GML.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\GML\bin\Debug\GML.pdb
+C:\Users\Administrator\Desktop\课设\房产信息管理\GML\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\课设\房产信息管理\GML\obj\Debug\GML.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\GML\obj\Debug\GML.pdb

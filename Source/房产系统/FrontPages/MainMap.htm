@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta  http-equiv="x-ua-compatible" content="ie=7"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>地图浏览分析</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/dojo/dijit/themes/tundra/tundra.css"/>
+    <link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/esri/css/esri.css" />
+    <script type="text/javascript" src="http://localhost/arcgis_js_api/library/3.9/3.9/init.js"></script>
+
+
+   
+
+
+
+
+     <script type="text/javascript">
+
+         dojo.require("esri.map");
+
+         function init() {
+             var myMap = new esri.Map("mapDiv");
+             //note that if you do not have public Internet access then you will need to point this url to your own locally accessible cached service.
+
+             var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TangShangMap/MapServer");
+
+             myMap.addLayer(myTiledMapServiceLayer);
+
+         }
+
+         dojo.addOnLoad(init);
+
+    </script>
+</head>
+<body>
+
+<form> 
+<label for="Location"> 请输入地址</label>
+<input type="text" name="Location" />
+<input type="button" name="Index" value="搜索" />
+</form>
+<table style="width:100%; height:158px">
+<tr>
+<td colspan="6"></td>
+<td colspan="9" rowspan="15"><div id="mapDiv" 
+        style="width:1156px; height:600px; border:1px solid #000; margin-left: 213px;"></div></td>
+</tr>
+</table>
+</body>
+</html>

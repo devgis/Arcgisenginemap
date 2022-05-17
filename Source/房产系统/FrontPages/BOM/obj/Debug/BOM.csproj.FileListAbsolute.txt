@@ -1,0 +1,11 @@
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\BOM.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\BOM.pdb
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\ClassLibrary2.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\DMO.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\GML.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\ClassLibrary2.pdb
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\DMO.pdb
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\bin\Debug\GML.pdb
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\obj\Debug\BOM.dll
+C:\Users\Administrator\Desktop\课设\房产信息管理\BOM\obj\Debug\BOM.pdb

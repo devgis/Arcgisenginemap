@@ -1,0 +1,10 @@
+D:\GIS课设\课设\房产信息管理\房产信息管理\bin\房产信息管理.dll
+D:\GIS课设\课设\房产信息管理\房产信息管理\bin\房产信息管理.pdb
+D:\GIS课设\课设\房产信息管理\房产信息管理\obj\Debug\ResolveAssemblyReference.cache
+D:\GIS课设\课设\房产信息管理\房产信息管理\obj\Debug\房产信息管理.dll
+D:\GIS课设\课设\房产信息管理\房产信息管理\obj\Debug\房产信息管理.pdb
+C:\Users\Administrator\Desktop\房产信息管理\房产信息管理\bin\房产信息管理.dll
+C:\Users\Administrator\Desktop\房产信息管理\房产信息管理\bin\房产信息管理.pdb
+C:\Users\Administrator\Desktop\房产信息管理\房产信息管理\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\房产信息管理\房产信息管理\obj\Debug\房产信息管理.dll
+C:\Users\Administrator\Desktop\房产信息管理\房产信息管理\obj\Debug\房产信息管理.pdb

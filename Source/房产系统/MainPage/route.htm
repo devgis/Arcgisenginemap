@@ -1,0 +1,234 @@
+﻿<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples 
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Multiple Routes</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/dojo/dijit/themes/tundra/tundra.css"/>
+    <link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/esri/css/esri.css" />
+    <script type="text/javascript" src="http://localhost/arcgis_js_api/library/3.9/3.9/init.js"></script>
+    
+    <script type="text/javascript" >
+        require([
+        "esri/urlUtils",
+        "esri/config",
+        "esri/map",
+
+        "esri/graphic",
+        "esri/tasks/RouteTask",
+        "esri/tasks/RouteParameters",
+
+        "esri/tasks/FeatureSet",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/symbols/SimpleLineSymbol",
+
+        "esri/Color",
+        "dojo/_base/array",
+        "dojo/on",
+        "dojo/dom",
+        "dijit/registry",
+
+        "dijit/layout/BorderContainer",
+        "dijit/layout/ContentPane",
+        "dijit/form/HorizontalSlider",
+        "dijit/form/HorizontalRuleLabels"
+      ], function (
+        urlUtils, esriConfig, Map, Graphic, RouteTask, RouteParameters,
+        FeatureSet, SimpleMarkerSymbol, SimpleLineSymbol,
+        Color, array, on, dom, registry
+      ) {
+          var map, routeTask, routeParams, routes = [];
+          var stopSymbol, barrierSymbol, routeSymbols;
+          var mapOnClick_addStops_connect, mapOnClick_addBarriers_connect;
+
+          urlUtils.addProxyRule({
+              urlPrefix: "route.arcgis.com",
+              proxyUrl: "/sproxy"
+          });
+
+
+          var map = new esri.Map("map", { logo: false });
+
+          var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+
+          map.addLayer(myTiledMapServiceLayer);
+
+
+          // routeTask = new RouteTask("http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World");
+
+          routeTask = new RouteTask("http://localhost:6080/arcgis/rest/services/TSCNet/NAServer/Route");
+          routeParams = new RouteParameters();
+          routeParams.stops = new FeatureSet();
+          routeParams.barriers = new FeatureSet();
+          routeParams.outSpatialReference = Map.SpatialReference;
+
+          routeTask.on("solve-complete", showRoute);
+          routeTask.on("error", errorHandler);
+
+          stopSymbol = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CROSS).setSize(15);
+          stopSymbol.outline.setWidth(3);
+
+          barrierSymbol = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_X).setSize(10);
+          barrierSymbol.outline.setWidth(3).setColor(new Color([255, 0, 0]));
+
+          routeSymbols = {
+              "Route 1": new SimpleLineSymbol().setColor(new Color([0, 0, 255, 0.5])).setWidth(5),
+              "Route 2": new SimpleLineSymbol().setColor(new Color([0, 255, 0, 0.5])).setWidth(5),
+              "Route 3": new SimpleLineSymbol().setColor(new Color([255, 0, 255, 0.5])).setWidth(5)
+          };
+
+          //button click event listeners can't be added directly in HTML when the code is wrapped in an AMD callback
+          on(dom.byId("addStopsBtn"), "click", addStops);
+          on(dom.byId("clearStopsBtn"), "click", clearStops);
+          on(dom.byId("addBarriersBtn"), "click", addBarriers);
+          on(dom.byId("clearBarriersBtn"), "click", clearBarriers);
+          on(dom.byId("solveRoutesBtn"), "click", solveRoute);
+          on(dom.byId("clearRoutesBtn"), "click", clearRoutes);
+
+          //Begins listening for click events to add stops
+          function addStops() {
+              removeEventHandlers();
+              mapOnClick_addStops_connect = map.on("click", addStop);
+          }
+
+          //Clears all stops
+          function clearStops() {
+              removeEventHandlers();
+              for (var i = routeParams.stops.features.length - 1; i >= 0; i--) {
+                  map.graphics.remove(routeParams.stops.features.splice(i, 1)[0]);
+              }
+          }
+
+          //Adds a stop. The stop is associated with the route currently displayed in the dropdown
+          function addStop(evt) {
+              routeParams.stops.features.push(
+            map.graphics.add(
+              new esri.Graphic(
+                evt.mapPoint,
+                stopSymbol,
+                { RouteName: dom.byId("routeName").value }
+              )
+            )
+          );
+          }
+
+          //Begins listening for click events to add barriers
+          function addBarriers() {
+              removeEventHandlers();
+              mapOnClick_addBarriers_connect = on(map, "click", addBarrier);
+          }
+
+          //Clears all barriers
+          function clearBarriers() {
+              removeEventHandlers();
+              for (var i = routeParams.barriers.features.length - 1; i >= 0; i--) {
+                  map.graphics.remove(routeParams.barriers.features.splice(i, 1)[0]);
+              }
+          }
+
+          //Adds a barrier
+          function addBarrier(evt) {
+              routeParams.barriers.features.push(
+            map.graphics.add(
+              new esri.Graphic(
+                evt.mapPoint,
+                barrierSymbol
+              )
+            )
+          );
+          }
+
+          //Stops listening for click events to add barriers and stops (if they've already been wired)
+          function removeEventHandlers() {
+              if (mapOnClick_addStops_connect) {
+                  mapOnClick_addStops_connect.remove();
+              }
+              if (mapOnClick_addBarriers_connect) {
+                  mapOnClick_addBarriers_connect.remove();
+              }
+          }
+
+          //Solves the routes. Any errors will trigger the errorHandler function.
+          function solveRoute() {
+              try {
+                  removeEventHandlers();
+                  routeTask.solve(routeParams);
+              }
+              catch (err) {
+                  alert(err);
+              }
+          }
+
+          //Clears all routes
+          function clearRoutes() {
+              for (var i = routes.length - 1; i >= 0; i--) {
+                  map.graphics.remove(routes.splice(i, 1)[0]);
+              }
+              routes = [];
+          }
+
+          //Draws the resulting routes on the map
+          function showRoute(evt) {
+              clearRoutes();
+
+              array.forEach(evt.result.routeResults, function (routeResult, i) {
+                  routes.push(
+              map.graphics.add(
+                routeResult.route.setSymbol(routeSymbols[routeResult.routeName])
+              )
+            );
+              });
+
+              var msgs = ["Server messages:"];
+              array.forEach(evt.result.messages, function (message) {
+                  msgs.push(message.type + " : " + message.description);
+              });
+              if (msgs.length > 1) {
+                  alert(msgs.join("\n - "));
+              }
+          }
+
+          //Reports any errors that occurred during the solve
+          function errorHandler(err) {
+              alert("An error occured\n" + err.message + "\n" + err.details.join("\n"));
+          }
+      });
+    </script>
+
+  </head>
+  <body class="claro">
+
+    选择路线名称: <select id="routeName">
+      <option value="Route 1">路线 1</option>
+      <option value="Route 2">路线 2</option>
+      <option value="Route 3">路线 3</option>
+    </select> 
+        <button id="addStopsBtn">添加站点</button>
+        <button id="clearStopsBtn">清除站点</button>
+        <button id="addBarriersBtn">添加障碍物</button>
+        <button id="clearBarriersBtn">清除障碍物</button>
+        <button id="solveRoutesBtn">生成路线</button>
+        <button id="clearRoutesBtn">清除路线</button>
+        <input type="button" value="返回"  onclick="javascript:location.href='http://localhost:43095/MainPage/Base.aspx'"   />
+    <br /><br />
+    <div id="map" style="width:1497px; height:638px; border:1px solid #000;"></div>
+    <!-- <ul>
+      <li>Select a route name from the drop down.</li>
+      <li>Click 'Add stops', then click on map to add stops to route.</li>
+
+      <li>Click the 'Add Barriers', then click on map to add barriers.</li>
+      <li>Optionally, repeat the above steps to add more routes.</li>
+      <li>Click the 'Solve Routes' to solve.</li>
+    </ul>
+    <p>Any server error messages will be displayed in an alert box.</p>-->
+  </body></html>

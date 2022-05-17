@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!--<!DOCTYPE metadata SYSTEM "http://www.esri.com/metadata/esriprof80.dtd">-->
+<metadata xml:lang="zh"><Esri><MetaID>{8C439FAF-6439-4807-AB0A-2B288C908AB4}</MetaID><CreaDate>20080522</CreaDate><CreaTime>17312700</CreaTime><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process Name="Merge_1" ToolSource="F:\ArcGIS\install\ArcGIS\ArcToolbox\Toolboxes\Data Management Tools.tbx\Merge" Date="20080522" Time="173127">Merge F:\专业\GIS资料\shape\唐山shape\所有道路L_polyline.shp F:\专业\GIS资料\shape\唐山shape\所有道路L_polyline_Merge.shp "SMUSERID SMUSERID true false false 11 Double 0 11 ,First,#,F:\专业\GIS资料\shape\唐山shape\所有道路L_polyline.shp,SMUSERID,-1,-1"</Process></lineage></DataProperties></Esri></metadata>

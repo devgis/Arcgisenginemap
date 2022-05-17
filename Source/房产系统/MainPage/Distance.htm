@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples 
+    on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+    <title>Measure Tool</title>
+ <link rel="stylesheet" type="text/css" href="http://localhost:3616/arcgisjs/js/dojo/dijit/themes/claro/claro.css" />
+    <script type="text/javascript" src="http://localhost:3616/arcgisjs/init.js"></script>
+    <script type="text/javascript" src="../js/arcgisjs/jsapi_vsdoc12_v38.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://localhost:3616/arcgisjs/js/esri/css/esri.css" />
+    <style type="text/css">
+      html,body {
+        height:100%;
+        width:100%;
+        margin:0;
+      }
+      body {
+        background-color:#FFF;
+        overflow:hidden;
+        font-family:"Trebuchet MS";
+      }
+      #map {
+        border:solid 2px #808775;
+        -moz-border-radius:4px;
+        -webkit-border-radius:4px;
+        border-radius:4px;
+        margin:5px;
+        padding:0px;
+      }
+      #titlePane{
+        width:240px;
+      }
+      .claro .dijitTitlePaneTitle {
+        background: #fff;
+        font-weight:600;
+        border: none;
+        border-bottom:solid 1px #29201A;
+        border-top:solid 1px #29201A;
+      }
+      .claro .dijitTitlePaneTitleHover {
+        background:#eee;
+      }
+      .claro .dijitTitlePaneTitleActive {
+        background:#808775;
+      }
+      .claro .dijitTitlePaneContentOuter {
+        border-right: none;
+        border-bottom: none;
+        border-left: none;
+      }
+      </style>
+  
+    <script type="text/javascript">
+        var map;
+        require([
+            "dojo/dom",
+            "esri/Color",
+            "dojo/keys",
+            "dojo/parser",
+            "esri/map",
+            "esri/SnappingManager",
+            "esri/dijit/Measurement",
+            "esri/layers/FeatureLayer",
+            "esri/renderers/SimpleRenderer",
+            "esri/tasks/GeometryService",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/dijit/Scalebar",
+            "dijit/layout/BorderContainer",
+            "dijit/layout/ContentPane",
+            "dijit/TitlePane",
+            "dijit/form/CheckBox",
+            "dojo/domReady!"
+        ], function (
+            dom, Color, keys, parser,
+           Map, SnappingManager, Measurement, FeatureLayer, SimpleRenderer, GeometryService, SimpleLineSymbol, SimpleFillSymbol
+          ) {
+            parser.parse();
+
+
+//            map = new Map("map", {
+//                basemap: "satellite",
+//                center: [-85.743, 38.256],
+//                zoom: 17
+//            });
+
+
+        
+               map = new esri.Map("map", {
+                   logo: false
+               });
+               var layer = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+               map.addLayer(layer);
+            
+  
+
+
+
+
+
+            var measurement = new Measurement({
+                map: map
+            }, dom.byId("measurementDiv"));
+            measurement.startup();
+            measurement.on("measure-end", function (evt) {
+                var evo = evt;
+                alert(evt.target.result);
+            });
+        });
+        
+    </script>
+  </head>
+  
+  <body class="claro">
+    <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline',gutters:false"
+    style="width:100%; height:100%;">
+      <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+        <div style="position:absolute; right:20px; top:10px; z-Index:999;">
+          <div id="titlePane" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Measurement', closable:'false', open:'false'">
+            <div id="measurementDiv"></div>
+           
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+ 

@@ -1,0 +1,387 @@
+﻿<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+<title>Buffer</title>
+
+<link rel="stylesheet" href="http://js.arcgis.com/3.13/dijit/themes/claro/claro.css"/>
+<link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css"/>
+<style type="text/css">
+   html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0; 
+    padding: 0;
+    overflow:hidden;
+  }
+  #leftPane{
+    color:#000;
+    width:250px;
+    padding-bottom:15px;
+  }
+  #map{
+    padding:0;
+  }
+  .details{
+    font-size:14px;
+    font-weight:600;
+    padding-bottom:20px;
+  }
+
+  button{
+    margin:2px;
+    cursor:pointer;
+  }
+</style>
+
+<script  type="text/javascript" src="http://js.arcgis.com/3.13/"></script>
+<script type="text/javascript">
+    var map, tb;
+
+    require(["dojo/dom",
+
+        "dojo/_base/array",
+        "dojo/parser",
+        "dojo/query",
+        "dojo/on",
+
+        "esri/Color",
+        "esri/config",
+        "esri/map",
+        "esri/graphic",
+
+        "esri/geometry/normalizeUtils",
+        "esri/tasks/GeometryService",
+        "esri/tasks/BufferParameters",
+
+        "esri/toolbars/draw",
+
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/SimpleFillSymbol",
+
+        "dijit/layout/BorderContainer",
+        "dijit/layout/ContentPane",
+        "dijit/form/Button", "dojo/domReady!"
+        ],
+      function (dom, array, parser, query, on, Color, esriConfig, Map, Graphic, normalizeUtils, GeometryService, BufferParameters, Draw, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol) {
+
+          parser.parse();
+
+
+          //          esriConfig.defaults.geometryService = new GeometryService("http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer");
+          esriConfig.defaults.geometryService = new GeometryService("http://localhost:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+          esriConfig.defaults.io.proxyUrl = "/proxy/";
+          esriConfig.defaults.io.alwaysUseProxy = false;
+
+
+          //Setup button click handlers
+          on(dom.byId("clearGraphics"), "click", function () {
+              if (map) {
+                  map.graphics.clear();
+              }
+          });
+          //click handler for the draw tool buttons
+          query(".tool").on("click", function (evt) {
+              if (tb) {
+                  tb.activate(evt.target.id);
+              }
+          });
+
+
+          map = new esri.Map("map", {
+              logo: false
+          });
+          var layer = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+          map.addLayer(layer);
+          map.on("load", initToolbar);
+
+
+
+          function initToolbar(evtObj) {
+              tb = new Draw(evtObj.map);
+              tb.on("draw-end", doBuffer);
+          }
+
+          function doBuffer(evtObj) {
+              tb.deactivate();
+              var geometry = evtObj.geometry, symbol;
+              switch (geometry.type) {
+                  case "point":
+                      symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 10, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1), new Color([0, 255, 0, 0.25]));
+                      break;
+                  case "polyline":
+                      symbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASH, new Color([255, 0, 0]), 1);
+                      break;
+                  case "polygon":
+                      symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_NONE, new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT, new Color([255, 0, 0]), 2), new Color([255, 255, 0, 0.25]));
+                      break;
+              }
+
+              var graphic = new Graphic(geometry, symbol);
+              map.graphics.add(graphic);
+
+              //setup the buffer parameters
+              var params = new BufferParameters();
+              params.distances = [dom.byId("distance").value];
+              params.outSpatialReference = map.spatialReference;
+              params.unit = GeometryService[dom.byId("unit").value];
+              //normalize the geometry 
+
+              normalizeUtils.normalizeCentralMeridian([geometry]).then(function (normalizedGeometries) {
+                  var normalizedGeometry = normalizedGeometries[0];
+                  if (normalizedGeometry.type === "polygon") {
+                      //if geometry is a polygon then simplify polygon.  This will make the user drawn polygon topologically correct.
+                      esriConfig.defaults.geometryService.simplify([normalizedGeometry], function (geometries) {
+                          params.geometries = geometries;
+                          esriConfig.defaults.geometryService.buffer(params, showBuffer);
+                      });
+                  } else {
+                      params.geometries = [normalizedGeometry];
+                      esriConfig.defaults.geometryService.buffer(params, showBuffer);
+                  }
+
+              });
+          }
+
+          function showBuffer(bufferedGeometries) {
+              var symbol = new SimpleFillSymbol(
+            SimpleFillSymbol.STYLE_SOLID,
+            new SimpleLineSymbol(
+              SimpleLineSymbol.STYLE_SOLID,
+              new Color([255, 0, 0, 0.65]), 2
+            ),
+            new Color([255, 0, 0, 0.35])
+          );
+
+              array.forEach(bufferedGeometries, function (geometry) {
+                  var graphic = new Graphic(geometry, symbol);
+                  map.graphics.add(graphic);
+              });
+
+          }
+      });
+</script>
+
+</head>-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<!--The viewport meta tag is used to improve the presentation and behavior of the samples 
+  on iOS devices-->
+<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+<title>Buffer</title>
+
+<link rel="stylesheet" href="http://js.arcgis.com/3.13/dijit/themes/claro/claro.css"/>
+<link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css"/>
+<style type="text/css">
+   html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0; 
+    padding: 0;
+    overflow:hidden;
+  }
+  #leftPane{
+    color:#000;
+    width:250px;
+    padding-bottom:15px;
+  }
+  #map{
+    padding:0;
+  }
+  .details{
+    font-size:14px;
+    font-weight:600;
+    padding-bottom:20px;
+  }
+
+  button{
+    margin:2px;
+    cursor:pointer;
+  }
+</style>
+
+<script src="http://js.arcgis.com/3.13/"></script>
+<script>
+    var map, tb;
+
+    require(["dojo/dom",
+
+        "dojo/_base/array",
+        "dojo/parser",
+        "dojo/query",
+        "dojo/on",
+
+        "esri/Color",
+        "esri/config",
+        "esri/map",
+        "esri/graphic",
+
+        "esri/geometry/normalizeUtils",
+        "esri/tasks/GeometryService",
+        "esri/tasks/BufferParameters",
+
+        "esri/toolbars/draw",
+
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/SimpleFillSymbol",
+
+        "dijit/layout/BorderContainer",
+        "dijit/layout/ContentPane",
+        "dijit/form/Button", "dojo/domReady!"
+        ],
+      function (dom, array, parser, query, on, Color, esriConfig, Map, Graphic, normalizeUtils, GeometryService, BufferParameters, Draw, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol) {
+
+          parser.parse();
+
+
+          //          esriConfig.defaults.geometryService = new GeometryService("http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer");
+          esriConfig.defaults.geometryService = new GeometryService("http://localhost:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+          esriConfig.defaults.io.proxyUrl = "/proxy/";
+          esriConfig.defaults.io.alwaysUseProxy = false;
+
+
+          //Setup button click handlers
+          on(dom.byId("clearGraphics"), "click", function () {
+              if (map) {
+                  map.graphics.clear();
+              }
+          });
+          //click handler for the draw tool buttons
+          query(".tool").on("click", function (evt) {
+              if (tb) {
+                  tb.activate(evt.target.id);
+              }
+          });
+
+
+          map = new esri.Map("map", {
+              logo: false
+          });
+          var layer = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+          map.addLayer(layer);
+          map.on("load", initToolbar);
+
+
+
+          function initToolbar(evtObj) {
+              tb = new Draw(evtObj.map);
+              tb.on("draw-end", doBuffer);
+          }
+
+          function doBuffer(evtObj) {
+              tb.deactivate();
+              var geometry = evtObj.geometry, symbol;
+              switch (geometry.type) {
+                  case "point":
+                      symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 10, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1), new Color([0, 255, 0, 0.25]));
+                      break;
+                  case "polyline":
+                      symbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASH, new Color([255, 0, 0]), 1);
+                      break;
+                  case "polygon":
+                      symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_NONE, new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT, new Color([255, 0, 0]), 2), new Color([255, 255, 0, 0.25]));
+                      break;
+              }
+
+              var graphic = new Graphic(geometry, symbol);
+              map.graphics.add(graphic);
+
+              //setup the buffer parameters
+              var params = new BufferParameters();
+              params.distances = [dom.byId("distance").value];
+              params.outSpatialReference = map.spatialReference;
+              params.unit = GeometryService[dom.byId("unit").value];
+              //normalize the geometry 
+
+              normalizeUtils.normalizeCentralMeridian([geometry]).then(function (normalizedGeometries) {
+                  var normalizedGeometry = normalizedGeometries[0];
+                  if (normalizedGeometry.type === "polygon") {
+                      //if geometry is a polygon then simplify polygon.  This will make the user drawn polygon topologically correct.
+                      esriConfig.defaults.geometryService.simplify([normalizedGeometry], function (geometries) {
+                          params.geometries = geometries;
+                          esriConfig.defaults.geometryService.buffer(params, showBuffer);
+                      });
+                  } else if (normalizedGeometry.type === "point") {
+                      var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_SQUARE, 10, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 0, 0]), 1), new dojo.Color([0, 255, 0, 0.25]));
+
+                  }
+                  else {
+                      params.geometries = [normalizedGeometry];
+                      esriConfig.defaults.geometryService.buffer(params, showBuffer);
+                  }
+
+              });
+          }
+
+          function showBuffer(bufferedGeometries) {
+              var symbol = new SimpleFillSymbol(
+            SimpleFillSymbol.STYLE_SOLID,
+            new SimpleLineSymbol(
+              SimpleLineSymbol.STYLE_SOLID,
+              new Color([255, 0, 0, 0.65]), 2
+            ),
+            new Color([255, 0, 0, 0.35])
+          );
+
+              array.forEach(bufferedGeometries, function (geometry) {
+                  var graphic = new Graphic(geometry, symbol);
+                  map.graphics.add(graphic);
+              });
+
+          }
+      });
+</script>
+
+</head>
+
+<body class="claro">
+<div data-dojo-type="dijit/layout/BorderContainer" 
+     data-dojo-props="gutters:'true', design:'sidebar'" 
+     style="width:100%;height:100%;">
+
+  <div id="map" 
+       data-dojo-type="dijit/layout/ContentPane" 
+       data-dojo-props="region:'center'">
+  </div>
+
+  <div id="leftPane" 
+       data-dojo-type="dijit/layout/ContentPane" 
+       data-dojo-props="region:'left'">
+    <div class="details">选择一个工具,画在地图上。选定周边范围参数。</div>
+    <button type="button" class="tool" id="point">点</button>
+    <button type="button" class="tool" id="line">线</button>
+    <button type="button" class="tool" id="polyline">多线</button>
+    <button type="button" class="tool" id="freehandpolyline">徒手画线</button>
+    <br/>
+    <button type="button" class="tool" id="polygon">多边形</button>
+    <button type="button" class="tool" id="freehandpolygon">徒手画多边形</button>
+    <br/><hr />
+    <div><b>搜周边</b></div>
+    距离: <input type="text" id="distance" size="5" value="25" />
+    <select id="unit" style="width:100px;">
+      <option value="UNIT_STATUTE_MILE">英里/Miles</option>
+      <option value="UNIT_FOOT">尺/Feet</option>
+      <option value="UNIT_KILOMETER">千米/Kilometers</option>
+      <option value="UNIT_METER">米/Meters</option>
+      <option value="UNIT_NAUTICAL_MILE">海里/Nautical Miles</option>
+      <option value="UNIT_US_NAUTICAL_MILE">海里（美）/US Nautical Miles</option>
+      <option value="UNIT_DEGREE">Degrees</option>
+    </select><br />
+    <button type="button" id="clearGraphics"  type="button">清除图像</button>
+     <input type="button" value="返回"  onclick="javascript:location.href='http://localhost:43095/MainPage/Base.aspx'"   />
+  </div>
+</div>
+</body>
+</html>
+ 
+          

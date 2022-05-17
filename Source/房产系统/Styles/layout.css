@@ -1,0 +1,28 @@
+﻿body {font-family:Verdana; font-size:14px; margin:0;
+}
+
+#container {margin:0 auto; width:100%;
+    height: 609px;
+}
+#header { height:100px; background:#9c6; margin-bottom:5px;}
+#menu { height:30px; background:#335399; margin-bottom:5px;}
+#mainContent { height:530px; margin-bottom:5px;}
+#sidebar { float:left; width:352px; 
+height:536px; 
+background:#335399; border: 2px solid white; 
+}
+
+#small {float:right; height:466px; 
+background:#335399;
+}
+#map { margin-left:357px !important; margin-left:23px !important; 
+height:506px; 
+background:#ffa;
+}
+/*当content设定高度后，3像素会跑到content外侧，这样，我们用!important修正在ie下向左多浮动2像素，加上3像素的bug正好是5像素，所以在火狐和IE下显示是一样的*/
+#footer { height:30px; background:#335399;}
+#left{float:left;}
+#right{float:right;}
+#middle{
+    height: 275px;
+}

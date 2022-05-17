@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=7" />
+    <title></title>
+    
+
+   
+
+
+<link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/dojo/dijit/themes/tundra/tundra.css"/>
+    <link rel="stylesheet" type="text/css" href="http://localhost/arcgis_js_api/library/3.9/3.9/js/esri/css/esri.css" />
+    <script type="text/javascript" src="http://localhost/arcgis_js_api/library/3.9/3.9/init.js"></script>
+
+
+
+
+
+
+
+
+<script type="text/javascript"  language="Javascript">
+    dojo.require("esri.map");
+    dojo.require("esri.dijit.OverviewMap");
+    dojo.require("esri.toolbars.navigation");
+    dojo.require("esri.dijit.Scalebar")
+    dojo.require("esri.dijit.Bookmarks");
+    dojo.require("esri.dijit.BookmarkItem");
+
+    dojo.require("esri.tasks.query");
+
+    var queryTask, query;
+    var symbol, infoTemplate;
+
+
+
+    var myMap, navToolbar, Books;
+
+
+    function init() {
+
+        myMap = new esri.Map("map", { logo: true });
+        navToolbar = new esri.toolbars.Navigation(myMap);
+        var layer1 = new esri.layers.ArcGISTiledMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+        myMap.addLayer(layer1);
+
+
+
+
+        myMap.setZoom(4);
+        var div1 = dojo.byId("div1");
+        var div2 = dojo.byId("div2");
+        var button1 = dojo.byId("Button1");
+        var button2 = dojo.byId("Button2");
+        var button3 = dojo.byId("Button3");
+        var button4 = dojo.byId("Button4");
+        var button5 = dojo.byId("Button5");
+        var button6 = dojo.byId("Button6");
+        var button7 = dojo.byId("Button7");
+        var button8 = dojo.byId("Button8");
+        var button9 = dojo.byId("Button9");
+        dojo.connect(myMap, "onMouseMove", function (e) {
+            var mp = e.mapPoint;
+            var sp = e.screenPoint;
+            div1.innerHTML = mp.x + "/" + sp.x;
+            div2.innerHTML = mp.y + "/" + sp.y;
+        }); //坐标
+
+        var scalebar = new esri.dijit.Scalebar({
+            map: myMap,
+            // "dual" displays both miles and kilmometers
+            // "english" is the default, which displays miles
+            // use "metric" for kilometers
+            scalebarUnit: "dual"
+        }, dojo.byId("scalebardiv")); //比例尺
+
+
+        Books = new esri.dijit.Bookmarks({
+            map: myMap,
+            editable: "true"
+        }, dojo.byId("bookmarks"));
+
+        dojo.connect(button10, "click", addBook); //书签
+
+
+
+        dojo.connect(button1, "click", function (evt) {
+
+            navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
+
+        });
+        dojo.connect(button2, "click", function (evt) {
+
+            navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
+
+
+        });
+        dojo.connect(button3, "click", function (evt) {
+
+            myMap.panUp();
+
+
+        });
+        dojo.connect(button4, "click", function (evt) {
+
+            myMap.panDown();
+
+
+        });
+        dojo.connect(button5, "click", function (evt) {
+
+            myMap.panLeft();
+
+
+        });
+        dojo.connect(button6, "click", function (evt) {
+
+            myMap.panRight();
+
+
+        });
+        dojo.connect(button7, "click", function (evt) {
+
+            navToolbar.zoomToFullExtent();
+
+
+
+        });
+        dojo.connect(button8, "click", function (evt) {
+
+            navToolbar.activate(esri.toolbars.Navigation.PAN);
+
+
+
+        });
+
+
+
+        dojo.connect(button9, "click", function (evt) {
+
+            var overviewMap = new esri.dijit.OverviewMap({
+                map: myMap,
+                visible: true
+            });
+            overviewMap.startup();
+
+
+        }); //鹰眼
+    }
+
+
+
+
+
+
+
+
+    function addBook() {
+
+        var bookextent = myMap.extent;
+
+        var bookmarkItem = new esri.dijit.BookmarkItem({
+            "extent": bookextent,
+            "name": "北京"
+        });
+        Books.addBookmark(bookmarkItem); //书签
+
+        dojo.connect(myMap, "onClick", executeQueryTask);
+
+//        queryTask = new esri.tasks.QueryTask("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer/27");
+//        //build query filter
+//        query = new esri.tasks.Query();
+//        query.returnGeometry = true;
+//        query.outFields = ["nane"];
+
+//          infoTemplate = new esri.InfoTemplate("${nane}");
+
+//        symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255,0,0]), 2), new dojo.Color([255,255,0,0.5]));
+
+ queryTask = new esri.tasks.QueryTask("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer/27");
+            //Can listen for onComplete event to process results or can use the callback option in the queryTask.execute method.
+            //dojo.connect(queryTask, "onComplete", showResults);
+
+            //build query filter
+            query = new esri.tasks.Query();
+            query.returnGeometry = true;
+            query.outFields = ["nane"];
+
+            //create the infoTemplate to be used in the infoWindow.
+            //All ${attributeName} will be substituted with the attribute value for current feature.
+            //infoTemplate = new esri.InfoTemplate("${STATE_NAME}", "State Fips: ${STATE_FIPS}<br />Abbreviation: ${STATE_ABBR}<br />Area: ${AREA}");
+            infoTemplate = new esri.InfoTemplate("${nane}");
+            symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255, 0, 0]), 2), new dojo.Color([255, 255, 0, 0.5]));
+        
+
+
+
+
+
+
+    }
+    function executeQueryTask(evt) {
+        //onClick event returns the evt point where the user clicked on the map.
+        //This is contains the mapPoint (esri.geometry.point) and the screenPoint (pixel xy where the user clicked).
+        //set query geometry = to evt.mapPoint Geometry
+        query.geometry = evt.mapPoint;
+
+        //Execute task and call showResults on completion
+        queryTask.execute(query, showResults);
+    }
+
+    function showResults(featureSet) {
+        //remove all graphics on the maps graphics layer
+        myMap.graphics.clear();
+
+        //QueryTask returns a featureSet.  Loop through features in the featureSet and add them to the map.
+        for (var i = 0, il = featureSet.features.length; i < il; i++) {
+            //Get the current feature from the featureSet.
+            //Feature is a graphic
+            var graphic = featureSet.features[0];
+            graphic.setSymbol(symbol);
+
+            //Set the infoTemplate.
+            graphic.setInfoTemplate(infoTemplate);
+
+            //Add graphic to the map graphics layer.
+            myMap.graphics.add(graphic);
+        }
+    }
+
+
+    dojo.addOnLoad(init);
+
+    
+    </script>
+    <script type="text/javascript">
+    
+    </script>
+    <style type="text/css">
+        .style1
+        {
+            width: 12px;
+        }
+        .style2
+        {
+            width: 222px;
+        }
+    </style>
+</head>
+ <body class="tundra">
+ <!--<div id="bookmarks"></div><button id="button10">添加标签</button>-->
+    <div class="heading">查询 <input type="text" id="searchText"  />
+    <input type="button" value="搜索" onclick="execute(dojo.byId('searchText').value);" /></div>
+   最短路径：<input type="button" value="起点" />
+   <input type="button" value="终点" />
+   <input type="button" value="生成路径" />
+    
+    <table style="height: 500px; width: 1302px;" >
+    
+<tr>
+<!--<td class="style2" ><div id="grid" dojoType="dojox.Grid" jsId="gridWidget" structure="layout" height:600px;></div></td>-->
+<!--<td class="style2" ><div height="600px" id="divShowResult"></div></td>-->
+<td>a</td>
+<td class="style1" rowspan="6"><div id="map" 
+        
+        style="width:881px; height:550px; border:1px solid #000; margin-left: 4px;"></div></td>
+        <td rowspan="6"><input id="Button1" type="button" value="放大" /><br /><input id="Button2" type="button" value="缩小" /><br /><input id="Button3" type="button" value="上移" /><br /><input id="Button4" type="button" value="下移" /><br /><input id="Button5" type="button" value="左移" /><br /><input id="Button6" type="button" value="右移" /><br /><input id="Button7" type="button" value="全屏" /><br /><input id="Button8" type="button" value="拖动" /><br /><input id="Button9" type="button" value="鹰眼" /></td>
+<td rowspan="6" class="style2"><div height="600px" id="divShowResult"></div></td>
+</tr>
+<tr><td>a</td></tr>
+<tr><td>a</td></tr>
+<tr><td>a</td></tr>
+<tr><td>a</td></tr>
+<td class="style2" ></td>
+
+<tr>
+<td></td>
+<td><div id="scalebardiv"></div></td>
+<td></td>
+</tr>
+</table>
+   
+<div id="div1"></div>
+    <div id="div2"></div>
+  </body>
+</html> 
+
+
+
+

@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=7" />
+    <title>Find Task</title>
+    <style type="text/css">
+      @import "http://serverapi.arcgisonline.com/jsapi/arcgis/1.5/js/dojo/dijit/themes/tundra/tundra.css";
+      @import "http://serverapi.arcgisonline.com/jsapi/arcgis/1.5/js/dojo/dojox/grid/compat/_grid/Grid.css";
+      @import "http://serverapi.arcgisonline.com/jsapi/arcgis/1.5/js/dojo/dojox/grid/compat/_grid/tundraGrid.css";
+      body { font-size: 0.9em;
+               font-family: Geneva, Arial, Helvetica, sans-serif;
+             }
+        .heading { font-weight: bold;
+                   padding-bottom: 0.25em;
+                 }
+       #grid { border: 1px solid #333;
+                 width: 33em;
+                 height: 15.4em;
+            margin-top: 0px;
+        }
+        .style1
+        {
+            height: 420px;
+        }
+    </style>
+    <script type="text/javascript">        djConfig = { parseOnLoad: true }</script>
+    <script type="text/javascript" src="http://serverapi.arcgisonline.com/jsapi/arcgis/?v=1.5"></script>
+    <script src="../Script/jquery-1.4.1.min.js" type="text/javascript"></script> 
+    <script type="text/javascript" language="Javascript">
+      
+        dojo.require("dojox.grid.Grid");
+        dojo.require("dojox.grid.compat._data.model");  //Because of changes in the Dojo data grid and model you must load the comapt_data.model if using version 1.3.
+        dojo.require("esri.map");
+        dojo.require("esri.tasks.find");
+
+        var findTask, findParams, map;
+
+        function init() {
+            map = new esri.Map("map");
+
+
+            var censusMapLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer", { id: "usa" });
+            map.addLayer(censusMapLayer);
+
+
+            //create find task with url to map service
+            findTask = new esri.tasks.FindTask("http://localhost:6080/arcgis/rest/services/TSCMap/MapServer");
+
+            //create find parameters and define known values
+            findParams = new esri.tasks.FindParameters();
+            findParams.returnGeometry = true;
+            findParams.layerIds = [7, 17, 27];
+//            findParams.searchFields = ["名称", "位置", "开发商", "STATE_ABBR", "STATE_NAME"];
+            findParams.searchFields = ["名称", "位置", "开发商"];
+
+
+
+        }
+
+
+        function execute(searchText) {
+            //set the search text to find parameters
+            findParams.searchText = searchText;
+            findTask.execute(findParams, showResults);
+        }
+
+        function showResults(results) {
+            //find results return an array of findResult.
+            map.graphics.clear();
+            var dataForGrid = [];
+
+            for (var i = 0, il = results.length; i < il; i++) {
+                var curFeature = results[i];
+                var graphic = curFeature.feature;
+                var layerName = curFeature.layerName;
+                var layerId = curFeature.layerId;
+                var foundFieldName = curFeature.foundFieldName;
+                var foundFieldValue = graphic.attributes[foundFieldName];
+
+                var attValues = [layerName, layerId, foundFieldName, foundFieldValue];
+                dataForGrid.push(attValues);
+
+                switch (graphic.geometry.type) {
+                    case "point":
+                        var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_SQUARE, 10, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 0, 0]), 1), new dojo.Color([0, 255, 0, 0.25]));
+                        break;
+                    case "polyline":
+                        var symbol = new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASH, new dojo.Color([255, 0, 0]), 1);
+                        break;
+                    case "polygon":
+                        var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_NONE, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255, 0, 0]), 2), new dojo.Color([255, 255, 0, 0.25]));
+                        break;
+                }
+                graphic.setSymbol(symbol);
+                map.graphics.add(graphic);
+            }
+
+            var model = new dojox.grid.data.Table(null, dataForGrid);
+
+            var view1 = {
+                cells: [
+            [{ name: '一级分类' }, { name: '所属编号' }, { name: '查询所属类别' }, { name: '类别内容'}]
+          ]
+            };
+
+            var layout = [view1];
+            gridWidget.setModel(model);
+            gridWidget.setStructure(layout);
+
+        }
+
+        dojo.addOnLoad(init);
+
+        function btn1_onclick() {
+            switch (searchText.value) {
+                case "路北":
+                    window.location.href = "lubei.aspx";
+                    break;
+                case "路南":
+                    window.location.href = "lunan.aspx";
+                    break;
+                case "茂华唐山中心":
+                    window.location.href = "maohua.aspx";
+                    break;
+                case "丰宁锦苑":
+                    window.location.href = "fengning.aspx";
+                    break;
+                case "润达万科金域蓝湾":
+                    window.location.href = "runda.aspx";
+                    break;
+                case "世博广场":
+                    window.location.href = "shibo.aspx";
+                    break;
+                case "天昱金元":
+                    window.location.href = "tianyu.aspx";
+                    break;
+                case "唐山万达广场":
+                    window.location.href = "wanda.aspx";
+                    break;
+                default: window.location.href = "http://www.baidu.com";
+                    break;
+            }
+        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "路南":
+//                    window.location.href = "lunan.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "茂华唐山中心":
+//                    window.location.href = "maohua.aspx";
+//                break;
+//               default :window.location.href="http://www.baidu.com";
+//               break;
+//            } 
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "丰宁锦苑":
+//                    window.location.href = "fengning.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "润达万科金域蓝湾":
+//                    window.location.href = "runda.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "世博广场":
+//                    window.location.href = "shibo.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "天昱金元":
+//                    window.location.href = "tianyu.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+//        function btn1_onclick() {
+//            switch (searchText.value) {
+//                case "唐山万达广场":
+//                    window.location.href = "wanda.aspx";
+//                    break;
+//                default: window.location.href = "http://www.baidu.com";
+//                    break;
+//            }
+//        }
+    </script>
+</head>
+
+<style type="text/css">
+        .style1
+        {
+            width: 12px;
+        }
+        .style2
+        {
+            width: 222px;
+        }
+        #searchText
+        {
+            width: 135px;
+        }
+    </style>
+</head>
+
+ <!--<body class="tundra">-->
+ <body id="tundra" onload="switc(),switchSide(),switchSidenew()" >
+    <form id="form1" runat="server">
+    <div id="container">
+  <div id="header" 
+            style="background-image: url('../picture/logo.jpg');margin-right:25px;margin-left:25px; font-size: x-large; font-family: 微软雅黑; color: #660000;">
+      <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 唐山市房产查询分析系统</div>
+  
+</div>
+<!--</div>-->
+</form>
+
+
+
+
+
+
+ 
+ <!--   <h3 align="center">唐山市楼盘查询</h3>-->
+    <table style="height: 500px; width: 1302px;" >
+    
+<tr>
+
+<td><div class="heading">查询 <input type="text" id="searchText"  /><input type="button" id="btn1" value="详细信息" onclick="return btn1_onclick()" />
+    <input type="button" value="查询楼盘" onclick="execute(dojo.byId('searchText').value);" /></div></td>
+<td class="style1" rowspan="6"><div id="map" 
+        
+        
+        
+        style="width:881px; height:520px; border:1px solid #000; margin-left: 0px;"></div></td>
+<!--        <td rowspan="6"><input id="Button1" type="button" value="放大" /><br /><input id="Button2" type="button" value="缩小" /><br /><input id="Button3" type="button" value="上移" /><br /><input id="Button4" type="button" value="下移" /><br /><input id="Button5" type="button" value="左移" /><br /><input id="Button6" type="button" value="右移" /><br /><input id="Button7" type="button" value="全屏" /><br /><input id="Button8" type="button" value="拖动" /><br /><input id="Button9" type="button" value="鹰眼" /></td>
+-->
+        <td rowspan="6"><div id="grid" dojoType="dojox.Grid" jsId="gridWidget" structure="layout" height:600px;></div></td>
+<td rowspan="6" class="style2"><div height="600px" id="divShowResult"></div></td>
+</tr>
+<tr><td>最短路径：<input type="button" value="起点" />
+   <input type="button" value="终点" /><br />
+   <input type="button" value="生成路径" /></td></tr>
+<tr><td>搜周边</td></tr>
+<tr><td>a</td></tr>
+<tr><td>a</td></tr>
+<tr><td class="style2" ></td></tr>
+
+<tr>
+<td></td>
+<td><div id="scalebardiv"></div></td>
+<td></td>
+</tr>
+</table>
+   
+<div id="div1"></div>
+    <div id="div2"></div>
+    
+  </body>
+</html>

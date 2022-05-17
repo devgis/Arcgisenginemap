@@ -1,0 +1,10 @@
+行 13: 控件 SuperMap1 的类 SuperMapLib.SuperMap 不是一个已加载的控件类。
+行 24: 控件 SuperWorkspace1 的类 SuperMapLib.SuperWorkspace 不是一个已加载的控件类。
+行 19: 属性名 _Version 在 SuperMap1 中是无效的。
+行 20: 属性名 _ExtentX 在 SuperMap1 中是无效的。
+行 21: 属性名 _ExtentY 在 SuperMap1 中是无效的。
+行 22: 属性名 _StockProps 在 SuperMap1 中是无效的。
+行 27: 属性名 _Version 在 SuperWorkspace1 中是无效的。
+行 28: 属性名 _ExtentX 在 SuperWorkspace1 中是无效的。
+行 29: 属性名 _ExtentY 在 SuperWorkspace1 中是无效的。
+行 30: 属性名 _StockProps 在 SuperWorkspace1 中是无效的。
